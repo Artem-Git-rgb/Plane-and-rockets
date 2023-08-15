@@ -17,7 +17,6 @@ class Player(pygame.sprite.Sprite):  # класс игрока
     def __init__(self):
         super(Player, self).__init__()
         self.image = pygame.image.load('jet.png').convert()
-        self.image = pygame.transform.scale(self.image, (38, 14))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         self.up_image = pygame.transform.rotate(self.image, 20)
@@ -190,21 +189,27 @@ while running:  # цикл игры
     enemies.update()
     bullets.update()
     #
-    screen.fill((20, 137, 255))  # цвет экрана rgb
+    screen.fill((40, 147, 255))  # цвет экрана rgb
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
     if pygame.sprite.spritecollideany(player, enemies):
         player.kill()  # убираем игрока
         move_down_sound.stop()
         move_up_sound.stop()
+        flag = 1 # для 5-го изображения
         for image in arr_images:
             cord = player.rect.center
-            image = pygame.transform.scale(image, (70, 70))
-            image.set_colorkey((255, 255, 255))
-            screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
-            pygame.display.flip()
+            if flag < 5:
+                image = pygame.transform.scale(image, (70, 70))
+                image.set_colorkey((255, 255, 255))
+                screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
+            if flag == 5:
+                image = pygame.transform.scale(image, (100, 100))
+                image.set_colorkey((255, 255, 255))
+                screen.blit(image, (cord[0] - 50, cord[1] - 50))
             time.sleep(0.05)
             pygame.display.flip()
+            flag += 1
         collision_sound.play()
         time.sleep(0.3)
         running = False
