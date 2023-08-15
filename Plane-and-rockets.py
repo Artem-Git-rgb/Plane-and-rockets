@@ -26,9 +26,10 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         self.standard_image.set_colorkey((255, 255, 255))
         self.vertical = 0
 
-    def atack(self, pressed_keys):
-        if pressed_keys[K_SPACE]:
-            bullet = Bullet(self.rect)
+    def attack(self):  # атака пулями
+        new_bullet = Bullet()
+        all_sprites.add(new_bullet)
+        bullets.add(new_bullet)
 
     def update(self, pressed_keys):  # движение
         if pressed_keys[K_UP]:
@@ -73,7 +74,7 @@ class Player(pygame.sprite.Sprite):  # класс игрока
                 self.rect.bottom = SCREEN_HEIGHT
 
 
-class Bullet(pygame.sprite.Sprite):
+class Bullet(pygame.sprite.Sprite):  # класс пули
     def __init__(self, rect):
         super(Bullet, self).__init__()
         self.image = pygame.image.load('bullet.png').convert()
@@ -141,6 +142,7 @@ ADD_CLOUD = pygame.USEREVENT + 2
 pygame.time.set_timer(ADD_CLOUD, 1500)  # таймер для спавна облака (!)
 ADD_BULLET = pygame.USEREVENT + 2
 player = Player()
+# группы
 enemies = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
@@ -177,15 +179,17 @@ while running:  # цикл игры
             new_cloud = Cloud()
             all_sprites.add(new_cloud)
             clouds.add(new_cloud)
-        elif event.type == ADD_BULLET:
-            new_bullet = Bullet()
-            all_sprites.add(new_cloud)
-            bullets.add(new_bullet)
+        elif event.type == KEYDOWN:
+            if event.key == K_SPACE:
+                player.attack()
+
     pressed_keys = pygame.key.get_pressed()
+    # удаление
     clouds.update()  # смотрим, где облако и удаляем, если надо
     player.update(pressed_keys)
     enemies.update()
     bullets.update()
+    #
     screen.fill((20, 137, 255))  # цвет экрана rgb
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
