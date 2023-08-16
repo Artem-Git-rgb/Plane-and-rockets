@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         self.vertical = 0
 
     def attack(self):  # атака пулями
-        new_bullet = Bullet()
+        new_bullet = Bullet(self.rect.x + 50, self.rect.y + 15)
         all_sprites.add(new_bullet)
         bullets.add(new_bullet)
 
@@ -74,15 +74,18 @@ class Player(pygame.sprite.Sprite):  # класс игрока
 
 
 class Bullet(pygame.sprite.Sprite):  # класс пули
-    def __init__(self, rect):
+    def __init__(self, x, y):
         super(Bullet, self).__init__()
         self.image = pygame.image.load('bullet.png').convert()
-        self.image = pygame.transform.scale(self.image, (10, 10))
-        self.rect = rect
+        self.image.set_colorkey((255, 255, 255))
+        self.image = pygame.transform.scale(self.image, (14, 7))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.speed = 10
 
     def update(self):  # исчезновение
-        self.rect.move_ip(self.speed, 0)
+        self.rect.x += self.speed
         if self.rect.right > SCREEN_WIDTH:
             self.kill()
 
@@ -93,7 +96,7 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
     def __init__(self):
         super(Enemy, self).__init__()
         self.image = pygame.image.load('missile.png').convert()
-        self.image = pygame.transform.scale(self.image, (38, 14))
+        self.image = pygame.transform.scale(self.image, (38, 13))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect(
             center=(random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100), random.randint(0, SCREEN_HEIGHT)))
@@ -170,6 +173,8 @@ while running:  # цикл игры
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
+            if event.key == K_SPACE:
+                player.attack()
         elif event.type == ADD_ENEMY:
             new_enemy = Enemy()
             all_sprites.add(new_enemy)
@@ -178,9 +183,6 @@ while running:  # цикл игры
             new_cloud = Cloud()
             all_sprites.add(new_cloud)
             clouds.add(new_cloud)
-        elif event.type == KEYDOWN:
-            if event.key == K_SPACE:
-                player.attack()
 
     pressed_keys = pygame.key.get_pressed()
     # удаление
@@ -192,18 +194,25 @@ while running:  # цикл игры
     screen.fill((40, 147, 255))  # цвет экрана rgb
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
-    if pygame.sprite.spritecollideany(player, enemies):
+    hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
+    for hit in hits:
+        e = Enemy()
+        all_sprites.add(e)
+        enemies.add(e)
+    if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
         player.kill()  # убираем игрока
         move_down_sound.stop()
         move_up_sound.stop()
-        flag = 1 # для 5-го изображения
+        flag = 1  # для 5-го изображения
         for image in arr_images:
             cord = player.rect.center
             if flag < 5:
                 image = pygame.transform.scale(image, (70, 70))
                 image.set_colorkey((255, 255, 255))
                 screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
+                pygame.display.flip()
             if flag == 5:
+                pygame.display.flip()
                 image = pygame.transform.scale(image, (100, 100))
                 image.set_colorkey((255, 255, 255))
                 screen.blit(image, (cord[0] - 50, cord[1] - 50))
