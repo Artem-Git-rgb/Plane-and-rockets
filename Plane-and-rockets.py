@@ -26,9 +26,14 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         self.vertical = 0
 
     def attack(self):  # атака пулями
-        new_bullet = Bullet(self.rect.x + 50, self.rect.y + 15)
-        all_sprites.add(new_bullet)
-        bullets.add(new_bullet)
+        cord_x = 25
+        cord_y = 10
+        for i in range(1):
+            cord_x += 0
+            cord_y += 0
+            new_bullet = Bullet(self.rect.x + cord_x, self.rect.y + cord_y)  # (!!!)
+            all_sprites.add(new_bullet)
+            bullets.add(new_bullet)
 
     def update(self, pressed_keys):  # движение
         if pressed_keys[K_UP]:
@@ -78,7 +83,7 @@ class Bullet(pygame.sprite.Sprite):  # класс пули
         super(Bullet, self).__init__()
         self.image = pygame.image.load('bullet.png').convert()
         self.image.set_colorkey((255, 255, 255))
-        self.image = pygame.transform.scale(self.image, (14, 7))
+        self.image = pygame.transform.scale(self.image, (18, 9))  # (!!!)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -96,7 +101,7 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
     def __init__(self):
         super(Enemy, self).__init__()
         self.image = pygame.image.load('missile.png').convert()
-        self.image = pygame.transform.scale(self.image, (38, 13))
+        self.image = pygame.transform.scale(self.image, (38, 15))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect(
             center=(random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100), random.randint(0, SCREEN_HEIGHT)))
