@@ -197,8 +197,11 @@ while running:  # цикл игры
     player.update(pressed_keys)
     enemies.update()
     bullets.update()
-    #
-    screen.fill((20, 137, 255))  # цвет экрана rgb
+    # экран
+    screen_image = pygame.image.load('sky.png').convert()
+    screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.blit(screen_image, (0, 0))
+    # остальное
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
     hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
@@ -233,7 +236,7 @@ while running:  # цикл игры
         time.sleep(0.3)
         text_game_over = timer.render('GAME OVER', True, (255, 0, 0))
         text_time = timer.render('время: ' + str(time_score // 90), True, (0, 0, 0))  #
-        text_enemy = timer.render('сбито врагов: ' + str(enemy_score // 90), True, (0, 0, 0))  #
+        text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (0, 0, 0))  #
         screen.blit(text_time, (SCREEN_WIDTH - 455, SCREEN_HEIGHT - 325))
         screen.blit(text_enemy, (SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295))
         screen.blit(text_game_over, (SCREEN_WIDTH/2 - 80, SCREEN_HEIGHT/2 - 55))
@@ -241,7 +244,7 @@ while running:  # цикл игры
     # счётчики
     if running:
         text_time = timer.render('время: ' + str(time_score // 90), True, (255, 255, 255))  #
-        text_enemy = timer.render('сбито врагов: ' + str(enemy_score // 90), True, (255, 255, 255))  #
+        text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
         screen.blit(text_time, (SCREEN_WIDTH - 150, SCREEN_HEIGHT - 40))
         screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
     pygame.display.flip()
