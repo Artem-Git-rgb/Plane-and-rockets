@@ -83,11 +83,11 @@ class Bullet(pygame.sprite.Sprite):  # класс пули
         super(Bullet, self).__init__()
         self.image = pygame.image.load('bullet.png').convert()
         self.image.set_colorkey((255, 255, 255))
-        self.image = pygame.transform.scale(self.image, (18, 9))  # (!!!)
+        self.image = pygame.transform.scale(self.image, (18, 5))  # (!!!)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 10
+        self.speed = 5  # скорость пули
 
     def update(self):  # исчезновение
         self.rect.x += self.speed
@@ -105,14 +105,14 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect(
             center=(random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100), random.randint(0, SCREEN_HEIGHT)))
-        if Enemy.velocity > 3:
-            Enemy.velocity = 3
+        if Enemy.velocity > 2:
+            Enemy.velocity = 2
         self.speed = random.randint(3, 6) * Enemy.velocity  # (!!!)
 
     def update(self):  # исчезновение
         self.rect.move_ip(-self.speed, 0)
         if self.rect.right < 0:
-            Enemy.velocity += 0.03  # ускорение спауна врагов (!!!)
+            Enemy.velocity += 0.02  # ускорение спауна врагов (!!!)
             self.kill()
 
 
@@ -157,18 +157,20 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 # музыка
 pygame.mixer.music.load('Apoxode_-_Electric.mp3')
-pygame.mixer.music.set_volume(0.10)
+pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(loops=-1)
 collision_sound = pygame.mixer.Sound('Collision.ogg')
 move_up_sound = pygame.mixer.Sound('Rising_putter.ogg')
-move_up_sound.set_volume(0.02)  # звук вверх
+move_up_sound.set_volume(0.01)  # громкость звука вверх
 move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
-move_down_sound.set_volume(0.02)  # звук вниз
+move_down_sound.set_volume(0.01)  # громкость звука вниз
 # анимация
 arr_images = [pygame.image.load(str(i) + '.png') for i in range(1, 6)]
 #  счётчик
 timer = pygame.font.Font(None, 36)
-t = 1
+time_score = 1
+enemy_score = 0
+is_game_over = False
 # цикл игры
 running = True
 while running:  # цикл игры
@@ -196,7 +198,7 @@ while running:  # цикл игры
     enemies.update()
     bullets.update()
     #
-    screen.fill((40, 147, 255))  # цвет экрана rgb
+    screen.fill((20, 137, 255))  # цвет экрана rgb
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
     hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
@@ -204,7 +206,9 @@ while running:  # цикл игры
         e = Enemy()
         all_sprites.add(e)
         enemies.add(e)
+        enemy_score += 1
     if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
+        is_game_over = True
         player.kill()  # убираем игрока
         move_down_sound.stop()
         move_up_sound.stop()
@@ -224,14 +228,28 @@ while running:  # цикл игры
             time.sleep(0.05)
             pygame.display.flip()
             flag += 1
+        collision_sound.set_volume(0.5)  # громкость звука взрыва
         collision_sound.play()
         time.sleep(0.3)
+        text_game_over = timer.render('GAME OVER', True, (255, 0, 0))
+        text_time = timer.render('время: ' + str(time_score // 90), True, (0, 0, 0))  #
+        text_enemy = timer.render('сбито врагов: ' + str(enemy_score // 90), True, (0, 0, 0))  #
+        screen.blit(text_time, (SCREEN_WIDTH - 455, SCREEN_HEIGHT - 325))
+        screen.blit(text_enemy, (SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295))
+        screen.blit(text_game_over, (SCREEN_WIDTH/2 - 80, SCREEN_HEIGHT/2 - 55))
         running = False
-    text = timer.render('время: ' + str(t // 90), True, (255, 255, 255))
-    screen.blit(text, (SCREEN_WIDTH - 150, SCREEN_HEIGHT - 50))
+    # счётчики
+    if running:
+        text_time = timer.render('время: ' + str(time_score // 90), True, (255, 255, 255))  #
+        text_enemy = timer.render('сбито врагов: ' + str(enemy_score // 90), True, (255, 255, 255))  #
+        screen.blit(text_time, (SCREEN_WIDTH - 150, SCREEN_HEIGHT - 40))
+        screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
     pygame.display.flip()
-    t += 1
+    time_score += 1  # счёт времени
     clock.tick(90)  # кадры в секунду
+# за циклом
+if is_game_over:
+    time.sleep(1.5)
 pygame.mixer.music.stop()
 pygame.mixer.quit()
 pygame.quit()
