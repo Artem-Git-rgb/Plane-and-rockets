@@ -235,17 +235,17 @@ while running:  # цикл игры
         collision_sound.play()
         time.sleep(0.3)
         text_game_over = timer.render('GAME OVER', True, (255, 0, 0))
-        text_time = timer.render('время: ' + str(time_score // 90), True, (0, 0, 0))  #
+        text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (0, 0, 0))  #
         text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (0, 0, 0))  #
-        screen.blit(text_time, (SCREEN_WIDTH - 455, SCREEN_HEIGHT - 325))
+        screen.blit(text_time, (SCREEN_WIDTH - 485, SCREEN_HEIGHT - 325))
         screen.blit(text_enemy, (SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295))
-        screen.blit(text_game_over, (SCREEN_WIDTH/2 - 80, SCREEN_HEIGHT/2 - 55))
+        screen.blit(text_game_over, (SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55))
         running = False
     # счётчики
     if running:
-        text_time = timer.render('время: ' + str(time_score // 90), True, (255, 255, 255))  #
+        text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
         text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
-        screen.blit(text_time, (SCREEN_WIDTH - 150, SCREEN_HEIGHT - 40))
+        screen.blit(text_time, (SCREEN_WIDTH - 165, SCREEN_HEIGHT - 40))
         screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
     pygame.display.flip()
     time_score += 1  # счёт времени
