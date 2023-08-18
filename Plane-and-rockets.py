@@ -137,6 +137,49 @@ class Game(object):
         self.speed_game = 1
 
 
+class Explosion(pygame.sprite.Sprite):
+    def __int__(self, center, size):
+        pygame.sprite.Sprite.__init__(self)
+        #self.size = size
+        self.image = arr_images[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(arr_images):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = arr_images[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+
+
+def explosion_animation(object):
+    flag = 1  # для 5-го изображения
+    for image in arr_images:
+        cord = object.rect.center
+        if flag < 5:
+            image = pygame.transform.scale(image, (70, 70))
+            image.set_colorkey((255, 255, 255))
+            screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
+            pygame.display.flip()
+        if flag == 5:
+            pygame.display.flip()
+            image = pygame.transform.scale(image, (100, 100))
+            image.set_colorkey((255, 255, 255))
+            screen.blit(image, (cord[0] - 50, cord[1] - 50))
+        pygame.display.flip()
+        flag += 1
+
+
 pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
@@ -166,7 +209,7 @@ move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
 move_down_sound.set_volume(0.01)  # громкость звука вниз
 # анимация
 arr_images = [pygame.image.load(str(i) + '.png') for i in range(1, 6)]
-#  счётчик
+# счётчик
 timer = pygame.font.Font(None, 36)
 time_score = 1
 enemy_score = 0
@@ -205,32 +248,19 @@ while running:  # цикл игры
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
     hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
-    for hit in hits:
+    for hit in hits:  # сбитие ракеты
         e = Enemy()
         all_sprites.add(e)
         enemies.add(e)
         enemy_score += 1
+        expl = Explosion(hit.rect.center  )
+        all_sprites.add(expl)
     if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
         is_game_over = True
         player.kill()  # убираем игрока
         move_down_sound.stop()
         move_up_sound.stop()
-        flag = 1  # для 5-го изображения
-        for image in arr_images:
-            cord = player.rect.center
-            if flag < 5:
-                image = pygame.transform.scale(image, (70, 70))
-                image.set_colorkey((255, 255, 255))
-                screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
-                pygame.display.flip()
-            if flag == 5:
-                pygame.display.flip()
-                image = pygame.transform.scale(image, (100, 100))
-                image.set_colorkey((255, 255, 255))
-                screen.blit(image, (cord[0] - 50, cord[1] - 50))
-            time.sleep(0.05)
-            pygame.display.flip()
-            flag += 1
+        explosion_animation(player)  #
         collision_sound.set_volume(0.5)  # громкость звука взрыва
         collision_sound.play()
         time.sleep(0.3)
