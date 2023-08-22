@@ -12,6 +12,9 @@ from pygame.locals import (  # назначаю клавиши
     K_SPACE
 )
 
+def draw_text(text, font, color, x, y):
+    txt = font.render(text, True, color)
+    screen.blit(txt, (x, y))
 
 class Player(pygame.sprite.Sprite):  # класс игрока
     def __init__(self):
@@ -241,9 +244,10 @@ while running:  # цикл игры
     enemies.update()
     bullets.update()
     # экран
-    screen_image = pygame.image.load('sky.png').convert()
-    screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    screen.blit(screen_image, (0, 0))
+    #screen_image = pygame.image.load('sky.png').convert()
+    #screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    #screen.blit(screen_image, (0, 0))
+    screen.fill((0, 127, 255))
     # остальное
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
@@ -253,7 +257,7 @@ while running:  # цикл игры
         all_sprites.add(e)
         enemies.add(e)
         enemy_score += 1
-        expl = Explosion(hit.rect.center  )
+        expl = Explosion(hit.rect.center, 0)
         all_sprites.add(expl)
     if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
         is_game_over = True
@@ -264,12 +268,9 @@ while running:  # цикл игры
         collision_sound.set_volume(0.5)  # громкость звука взрыва
         collision_sound.play()
         time.sleep(0.3)
-        text_game_over = timer.render('GAME OVER', True, (255, 0, 0))
-        text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (0, 0, 0))  #
-        text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (0, 0, 0))  #
-        screen.blit(text_time, (SCREEN_WIDTH - 485, SCREEN_HEIGHT - 325))
-        screen.blit(text_enemy, (SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295))
-        screen.blit(text_game_over, (SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55))
+        draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
+        draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485, SCREEN_HEIGHT - 325)
+        draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
         running = False
     # счётчики
     if running:
