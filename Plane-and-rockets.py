@@ -244,10 +244,10 @@ while running:  # цикл игры
     enemies.update()
     bullets.update()
     # экран
-    #screen_image = pygame.image.load('sky.png').convert()
-    #screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    #screen.blit(screen_image, (0, 0))
-    screen.fill((0, 127, 255))
+    screen_image = pygame.image.load('sky.png').convert()
+    screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.blit(screen_image, (0, 0))
+    #screen.fill((0, 127, 255))
     # остальное
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
