@@ -27,18 +27,23 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         self.standard_image = pygame.image.load('jet.png').convert()
         self.standard_image.set_colorkey((255, 255, 255))
         self.vertical = 0
+        self.last_shot = pygame.time.get_ticks()
+        self.shoot_delay = 200
 
     def attack(self):  # атака пулями
-        cord_x = 25
+        now = pygame.time.get_ticks()
+        cord_x = 35
         cord_y = 10
-        for i in range(1):
-            cord_x += 0
-            cord_y += 0
+        if now - self.last_shot > self.shoot_delay:
+            #cord_x += 0
+            #cord_y += 0
+            self.last_shot = now
             new_bullet = Bullet(self.rect.x + cord_x, self.rect.y + cord_y)  # (!!!)
             all_sprites.add(new_bullet)
             bullets.add(new_bullet)
 
-    def update(self, pressed_keys):  # движение
+    def update(self):  # движение
+        pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_UP]:
             self.rect.move_ip(0, -5)
             self.vertical = 1
@@ -51,6 +56,8 @@ class Player(pygame.sprite.Sprite):  # класс игрока
             self.rect.move_ip(-5, 0)
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
+        if pressed_keys[K_SPACE]:
+            self.attack()
         if not pressed_keys[K_UP] and not pressed_keys[K_DOWN]:
             self.vertical = 0
         match self.vertical:
@@ -84,9 +91,9 @@ class Player(pygame.sprite.Sprite):  # класс игрока
 class Bullet(pygame.sprite.Sprite):  # класс пули
     def __init__(self, x, y):
         super(Bullet, self).__init__()
-        self.image = pygame.image.load('bullet.png').convert()
+        self.image = pygame.image.load('big_bullet.png').convert()
         self.image.set_colorkey((255, 255, 255))
-        self.image = pygame.transform.scale(self.image, (18, 5))  # (!!!)
+        self.image = pygame.transform.scale(self.image, (21, 7))  # (!!!)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -141,7 +148,7 @@ class Game(object):
 
 
 class Explosion(pygame.sprite.Sprite):
-    def __int__(self, center, size):
+    def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
         #self.size = size
         self.image = arr_images[0]
@@ -163,24 +170,6 @@ class Explosion(pygame.sprite.Sprite):
                 self.image = arr_images[self.frame]
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-
-
-def explosion_animation(object):
-    flag = 1  # для 5-го изображения
-    for image in arr_images:
-        cord = object.rect.center
-        if flag < 5:
-            image = pygame.transform.scale(image, (70, 70))
-            image.set_colorkey((255, 255, 255))
-            screen.blit(image, (cord[0] - 35, cord[1] - 35))  # вызываем анимацию взрыва
-            pygame.display.flip()
-        if flag == 5:
-            pygame.display.flip()
-            image = pygame.transform.scale(image, (100, 100))
-            image.set_colorkey((255, 255, 255))
-            screen.blit(image, (cord[0] - 50, cord[1] - 50))
-        pygame.display.flip()
-        flag += 1
 
 
 pygame.mixer.init()
@@ -212,6 +201,8 @@ move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
 move_down_sound.set_volume(0.01)  # громкость звука вниз
 # анимация
 arr_images = [pygame.image.load(str(i) + '.png') for i in range(1, 6)]
+for img in arr_images:
+    img.set_colorkey((255, 255, 255))
 # счётчик
 timer = pygame.font.Font(None, 36)
 time_score = 1
@@ -226,8 +217,6 @@ while running:  # цикл игры
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
-            if event.key == K_SPACE:
-                player.attack()
         elif event.type == ADD_ENEMY:
             new_enemy = Enemy()
             all_sprites.add(new_enemy)
@@ -237,12 +226,8 @@ while running:  # цикл игры
             all_sprites.add(new_cloud)
             clouds.add(new_cloud)
 
-    pressed_keys = pygame.key.get_pressed()
     # удаление
-    clouds.update()  # смотрим, где облако и удаляем, если надо
-    player.update(pressed_keys)
-    enemies.update()
-    bullets.update()
+    all_sprites.update()
     # экран
     screen_image = pygame.image.load('skyLD.png').convert()
     screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -259,31 +244,30 @@ while running:  # цикл игры
         enemy_score += 1
         expl = Explosion(hit.rect.center, 0)
         all_sprites.add(expl)
-    if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
-        is_game_over = True
-        player.kill()  # убираем игрока
-        move_down_sound.stop()
-        move_up_sound.stop()
-        explosion_animation(player)  #
-        collision_sound.set_volume(0.5)  # громкость звука взрыва
-        collision_sound.play()
-        time.sleep(0.3)
+    if is_game_over:
         draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
-        draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485, SCREEN_HEIGHT - 325)
+        draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
+                  SCREEN_HEIGHT - 325)
         draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
-        running = False
     # счётчики
-    if running:
+    else:
+        if pygame.sprite.spritecollideany(player, enemies):  # столкновение игрока с врагом
+            is_game_over = True
+            player.kill()  # убираем игрока
+            move_down_sound.stop()
+            move_up_sound.stop()
+            expl = Explosion(player.rect.center, 0)
+            all_sprites.add(expl)
+            collision_sound.set_volume(0.5)  # громкость звука взрыва
+            collision_sound.play()
+        time_score += 1  # счёт времени
         text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
         text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
         screen.blit(text_time, (SCREEN_WIDTH - 165, SCREEN_HEIGHT - 40))
         screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
     pygame.display.flip()
-    time_score += 1  # счёт времени
     clock.tick(90)  # кадры в секунду
 # за циклом
-if is_game_over:
-    time.sleep(1.5)
 pygame.mixer.music.stop()
 pygame.mixer.quit()
 pygame.quit()
