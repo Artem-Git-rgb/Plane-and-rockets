@@ -12,9 +12,11 @@ from pygame.locals import (  # назначаю клавиши
     K_SPACE
 )
 
+
 def draw_text(text, font, color, x, y):
     txt = font.render(text, True, color)
     screen.blit(txt, (x, y))
+
 
 class Player(pygame.sprite.Sprite):  # класс игрока
     def __init__(self):
@@ -35,8 +37,6 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         cord_x = 35
         cord_y = 10
         if now - self.last_shot > self.shoot_delay:
-            #cord_x += 0
-            #cord_y += 0
             self.last_shot = now
             new_bullet = Bullet(self.rect.x + cord_x, self.rect.y + cord_y)  # (!!!)
             all_sprites.add(new_bullet)
@@ -122,7 +122,7 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
     def update(self):  # исчезновение
         self.rect.move_ip(-self.speed, 0)
         if self.rect.right < 0:
-            Enemy.velocity += 0.02  # ускорение спауна врагов (!!!)
+            Enemy.velocity += 0.02  # ускорение спавна врагов (!!!)
             self.kill()
 
 
@@ -142,32 +142,27 @@ class Cloud(pygame.sprite.Sprite):  # класс облаков
             self.kill()
 
 
-class Game(object):
-    def __init__(self):
-        self.speed_game = 1
-
-
-class Explosion(pygame.sprite.Sprite):
+class Explosion(pygame.sprite.Sprite):  # класс взрыва
     def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
-        #self.size = size
-        self.image = arr_images[0]
+        self.image = arr_images[size][0]
         self.rect = self.image.get_rect()
-        self.rect.center = center
+        self.rect.center = center  # ?
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 50
+        self.size = size
 
     def update(self):
         now = pygame.time.get_ticks()
         if now - self.last_update > self.frame_rate:
             self.last_update = now
             self.frame += 1
-            if self.frame == len(arr_images):
+            if self.frame == len(arr_images[self.size]):
                 self.kill()
             else:
                 center = self.rect.center
-                self.image = arr_images[self.frame]
+                self.image = arr_images[self.size][self.frame]
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
@@ -200,9 +195,16 @@ move_up_sound.set_volume(0.01)  # громкость звука вверх
 move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
 move_down_sound.set_volume(0.01)  # громкость звука вниз
 # анимация
-arr_images = [pygame.image.load(str(i) + '.png') for i in range(1, 6)]
-for img in arr_images:
+arr_images = {}  # цикл загрузки картинок взрыва
+arr_images['large'] = []
+arr_images['small'] = []
+for img in range(1, 6):
+    img = pygame.image.load(str(img) + '.png').convert()
     img.set_colorkey((255, 255, 255))
+    img_large = pygame.transform.scale(img, (90, 90))
+    arr_images['large'].append(img_large)
+    img_small = pygame.transform.scale(img, (50, 50))
+    arr_images['small'].append(img_small)
 # счётчик
 timer = pygame.font.Font(None, 36)
 time_score = 1
@@ -232,7 +234,7 @@ while running:  # цикл игры
     screen_image = pygame.image.load('skyLD.png').convert()
     screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     screen.blit(screen_image, (0, 0))
-    #screen.fill((0, 127, 255))
+    # screen.fill((0, 127, 255))
     # остальное
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
@@ -242,7 +244,7 @@ while running:  # цикл игры
         all_sprites.add(e)
         enemies.add(e)
         enemy_score += 1
-        expl = Explosion(hit.rect.center, 0)
+        expl = Explosion(hit.rect.center, 'small')  # взрыв
         all_sprites.add(expl)
     if is_game_over:
         draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
@@ -256,7 +258,7 @@ while running:  # цикл игры
             player.kill()  # убираем игрока
             move_down_sound.stop()
             move_up_sound.stop()
-            expl = Explosion(player.rect.center, 0)
+            expl = Explosion(player.rect.center, 'large')  # взрыв
             all_sprites.add(expl)
             collision_sound.set_volume(0.5)  # громкость звука взрыва
             collision_sound.play()
