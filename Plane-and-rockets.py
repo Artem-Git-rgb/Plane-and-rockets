@@ -260,7 +260,7 @@ while running:  # цикл игры
             move_up_sound.stop()
             expl = Explosion(player.rect.center, 'large')  # взрыв
             all_sprites.add(expl)
-            collision_sound.set_volume(0.5)  # громкость звука взрыва
+            collision_sound.set_volume(0.6)  # громкость звука взрыва
             collision_sound.play()
         time_score += 1  # счёт времени
         text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
