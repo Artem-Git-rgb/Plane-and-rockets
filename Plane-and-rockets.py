@@ -239,12 +239,14 @@ while running:  # цикл игры
     for entity in all_sprites:
         screen.blit(entity.image, entity.rect)
     hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
-    for hit in hits:  # сбитие ракеты
+    for hit in hits:  # сбита ракета
         e = Enemy()
         all_sprites.add(e)
         enemies.add(e)
         enemy_score += 1
         expl = Explosion(hit.rect.center, 'small')  # взрыв
+        collision_sound.set_volume(0.2)  # громкость звука взрыва
+        collision_sound.play()
         all_sprites.add(expl)
     if is_game_over:
         draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
