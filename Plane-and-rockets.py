@@ -47,11 +47,13 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         if pressed_keys[K_UP]:
             self.rect.move_ip(0, -5)
             self.vertical = 1
-            move_up_sound.play()
+            if not is_col_rock_sound_play:
+                move_up_sound.play()
         if pressed_keys[K_DOWN]:
             self.rect.move_ip(0, 5)
             self.vertical = -1
-            move_down_sound.play()
+            if not is_col_rock_sound_play:
+                move_down_sound.play()
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-5, 0)
         if pressed_keys[K_RIGHT]:
@@ -194,6 +196,7 @@ move_up_sound = pygame.mixer.Sound('Rising_putter.ogg')
 move_up_sound.set_volume(0.01)  # громкость звука вверх
 move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
 move_down_sound.set_volume(0.01)  # громкость звука вниз
+is_col_rock_sound_play = False  # взорвана ли ракета
 # анимация
 arr_images = {}  # цикл загрузки картинок взрыва
 arr_images['large'] = []
@@ -245,7 +248,8 @@ while running:  # цикл игры
         enemies.add(e)
         enemy_score += 1
         expl = Explosion(hit.rect.center, 'small')  # взрыв
-        collision_sound.set_volume(0.2)  # громкость звука взрыва
+        collision_sound.set_volume(0.1)  # громкость звука взрыва
+        is_col_rock_sound_play = True
         collision_sound.play()
         all_sprites.add(expl)
     if is_game_over:
