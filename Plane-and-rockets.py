@@ -120,7 +120,7 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
             center=(random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100), random.randint(0, SCREEN_HEIGHT)))
         if Enemy.velocity > 3:
             Enemy.velocity = 3
-        self.speed = random.randint(3, 5) * Enemy.velocity  # (!!!)
+        self.speed = random.randint(3, 6) * Enemy.velocity  # (!!!)
 
     def update(self):  # исчезновение
         self.rect.move_ip(-self.speed, 0)
@@ -170,7 +170,6 @@ class Explosion(pygame.sprite.Sprite):  # класс взрыва
                 self.rect.center = center
 
 
-# после классов
 pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
@@ -218,10 +217,6 @@ timer = pygame.font.Font(None, 36)
 time_score = 1
 enemy_score = 0
 is_game_over = False
-# экран
-state = 'menu'
-screen_image = pygame.image.load('skyLD.png').convert()
-screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 # цикл игры
 running = True
 while running:  # цикл игры
@@ -231,9 +226,6 @@ while running:  # цикл игры
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
-        if state == 'menu':
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                state = 'game'
         elif event.type == ADD_ENEMY:
             new_enemy = Enemy()
             all_sprites.add(new_enemy)
@@ -246,61 +238,62 @@ while running:  # цикл игры
     # удаление
     all_sprites.update()
     # экран
-    if state == 'game':
-        screen.blit(screen_image, (0, 0))
-        # screen.fill((0, 127, 255))
-        if player.healths > 0:
-            screen.blit(heart, (675, 10))
-        # остальное
-        for entity in all_sprites:
-            screen.blit(entity.image, entity.rect)
-        hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
-        for hit in hits:  # сбита ракета
-            e = Enemy()
-            all_sprites.add(e)
-            enemies.add(e)
-            enemy_score += 1
-            expl = Explosion(hit.rect.center, 'small')  # взрыв
-            is_col_rock_sound_play = True
-            collision_sound.set_volume(0.08)  # громкость звука взрыва
-            collision_sound.play()
-            all_sprites.add(expl)
-        if is_game_over:
-            # счётчики после game over
-            draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
-            draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
-                      SCREEN_HEIGHT - 325)
-            draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
-        else:
-            if pygame.sprite.spritecollide(player, enemies, True):  # столкновение игрока с врагом
-                player.healths -= 1
-                if player.healths == 0:
-                    is_game_over = True
-                    player.kill()  # убираем игрока
-                    move_down_sound.stop()
-                    move_up_sound.stop()
-                    expl = Explosion(player.rect.center, 'large')  # взрыв
-                    all_sprites.add(expl)
-                    collision_sound.set_volume(0.7)  # громкость звука взрыва
-                    collision_sound.play()
-                else:
-                    expl = Explosion(player.rect.center, 'small')  # взрыв
-                    is_col_rock_sound_play = True
-                    collision_sound.set_volume(0.08)  # громкость звука взрыва
-                    collision_sound.play()
-                    all_sprites.add(expl)
-            time_score += 1  # счёт времени
-            # счётчики
-            text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
-            text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
-            text_hearts = timer.render('x ' + str(player.healths), True, (0, 0, 0))  #
-            screen.blit(text_time, (SCREEN_WIDTH - 165, SCREEN_HEIGHT - 40))
-            screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
-            screen.blit(text_hearts, (740, 15))
-            # кадры и дисплей
-        pygame.display.flip()
-        clock.tick(90)  # кадры в секунду
-    # за циклом
-    pygame.mixer.music.stop()
-    pygame.mixer.quit()
-    pygame.quit()
+    screen_image = pygame.image.load('skyLD.png').convert()
+    screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.blit(screen_image, (0, 0))
+    # screen.fill((0, 127, 255))
+    if player.healths > 0:
+        screen.blit(heart, (675, 10))
+    # остальное
+    for entity in all_sprites:
+        screen.blit(entity.image, entity.rect)
+    hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
+    for hit in hits:  # сбита ракета
+        e = Enemy()
+        all_sprites.add(e)
+        enemies.add(e)
+        enemy_score += 1
+        expl = Explosion(hit.rect.center, 'small')  # взрыв
+        is_col_rock_sound_play = True
+        collision_sound.set_volume(0.08)  # громкость звука взрыва
+        collision_sound.play()
+        all_sprites.add(expl)
+    if is_game_over:
+        # счётчики после game over
+        draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
+        draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
+                  SCREEN_HEIGHT - 325)
+        draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
+    else:
+        if pygame.sprite.spritecollide(player, enemies, True):  # столкновение игрока с врагом
+            player.healths -= 1
+            if player.healths == 0:
+                is_game_over = True
+                player.kill()  # убираем игрока
+                move_down_sound.stop()
+                move_up_sound.stop()
+                expl = Explosion(player.rect.center, 'large')  # взрыв
+                all_sprites.add(expl)
+                collision_sound.set_volume(0.7)  # громкость звука взрыва
+                collision_sound.play()
+            else:
+                expl = Explosion(player.rect.center, 'small')  # взрыв
+                is_col_rock_sound_play = True
+                collision_sound.set_volume(0.08)  # громкость звука взрыва
+                collision_sound.play()
+                all_sprites.add(expl)
+        time_score += 1  # счёт времени
+        # счётчики
+        text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
+        text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
+        text_hearts = timer.render('x ' + str(player.healths), True, (0, 0, 0))  #
+        screen.blit(text_time, (SCREEN_WIDTH - 165, SCREEN_HEIGHT - 40))
+        screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
+        screen.blit(text_hearts, (740, 15))
+        # кадры и дисплей
+    pygame.display.flip()
+    clock.tick(90)  # кадры в секунду
+# за циклом
+pygame.mixer.music.stop()
+pygame.mixer.quit()
+pygame.quit()
