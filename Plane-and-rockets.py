@@ -231,10 +231,10 @@ while running:  # цикл игры
                 running = False
         if state == "menu":
             if event.type == pygame.MOUSEBUTTONDOWN:
-                #is_game_over = False
+                # is_game_over = False
                 pygame.mixer.music.play(loops=-1)
                 state = 'game'
-                #player = Player()
+                # player = Player()
         else:
             if is_game_over:
                 if event.type == KEYDOWN:
@@ -277,15 +277,13 @@ while running:  # цикл игры
             draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
                       SCREEN_HEIGHT - 325)
             draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
-            text_exit = timer.render('Нажмите на пробел, чтобы покинуть игру', True,
-                                     (0, 0, 0))  # текст меню
-            screen.blit(text_exit, (160, 340))
+            draw_text('Нажмите на пробел, чтобы покинуть игру', timer, (0, 0, 0), 160, 340)  # текст для меню
         else:
             if pygame.sprite.spritecollide(player, enemies, True):  # столкновение игрока с врагом
                 player.healths -= 1
                 if player.healths == 0:
                     is_game_over = True
-                    player.kill()  # убираем игрока
+                    player.kill()  # убиваем игрока
                     move_down_sound.stop()
                     move_up_sound.stop()
                     expl = Explosion(player.rect.center, 'large')  # взрыв
@@ -300,16 +298,14 @@ while running:  # цикл игры
                     all_sprites.add(expl)
             time_score += 1  # счёт времени
             # счётчики
-            text_time = timer.render('время: ' + str(time_score // 90) + ' сек.', True, (255, 255, 255))  #
-            text_enemy = timer.render('сбито врагов: ' + str(enemy_score), True, (255, 255, 255))  #
-            text_hearts = timer.render('x ' + str(player.healths), True, (0, 0, 0))  #
-            screen.blit(text_time, (SCREEN_WIDTH - 165, SCREEN_HEIGHT - 40))
-            screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
-            screen.blit(text_hearts, (740, 15))
+            draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (255, 255, 255), SCREEN_WIDTH - 165,
+                      SCREEN_HEIGHT - 40)  # текст
+            draw_text('сбито врагов: ' + str(enemy_score), timer, (255, 255, 255), SCREEN_WIDTH - 780,
+                      SCREEN_HEIGHT - 40)  # текст
+            draw_text('x ' + str(player.healths), timer, (0, 0, 0), 740, 15)  # текст меню
             # кадры и дисплей
     else:
-        text_menu = timer.render('Нажмите на любую кнопку мыши, чтобы начать игру', True, (255, 255, 255))  # текст меню
-        screen.blit(text_menu, (90, 270))
+        draw_text('Нажмите на любую кнопку мыши, чтобы начать игру', timer, (255, 255, 255), 90, 270)  # текст меню
         pygame.mixer.music.stop()  # останавливаю музыку
     pygame.display.flip()
     clock.tick(90)  # кадры в секунду
