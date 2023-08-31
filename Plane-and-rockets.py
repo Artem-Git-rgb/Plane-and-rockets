@@ -191,7 +191,6 @@ all_sprites.add(player)
 # музыка
 pygame.mixer.music.load('Apoxode_-_Electric.mp3')
 pygame.mixer.music.set_volume(0.05)
-pygame.mixer.music.play(loops=-1)
 collision_sound = pygame.mixer.Sound('Collision.ogg')
 move_up_sound = pygame.mixer.Sound('Rising_putter.ogg')
 move_up_sound.set_volume(0.01)  # громкость звука вверх
@@ -217,7 +216,7 @@ timer = pygame.font.Font(None, 36)
 time_score = 1
 enemy_score = 0
 is_game_over = False
-
+# экран
 state = 'menu'
 screen_image = pygame.image.load('skyLD.png').convert()
 screen_image = pygame.transform.scale(screen_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -232,8 +231,15 @@ while running:  # цикл игры
                 running = False
         if state == "menu":
             if event.type == pygame.MOUSEBUTTONDOWN:
+                #is_game_over = False
+                pygame.mixer.music.play(loops=-1)
                 state = 'game'
+                #player = Player()
         else:
+            if is_game_over:
+                if event.type == KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        state = 'menu'
             if event.type == ADD_ENEMY:
                 new_enemy = Enemy()
                 all_sprites.add(new_enemy)
@@ -246,9 +252,9 @@ while running:  # цикл игры
     # удаление
     all_sprites.update()
     # экран
+    screen.fill((20, 100, 200))
     if state == 'game':
         screen.blit(screen_image, (0, 0))
-        # screen.fill((0, 127, 255))
         if player.healths > 0:
             screen.blit(heart, (675, 10))
         # остальное
@@ -271,6 +277,9 @@ while running:  # цикл игры
             draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
                       SCREEN_HEIGHT - 325)
             draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
+            text_exit = timer.render('Нажмите на пробел, чтобы покинуть игру', True,
+                                     (0, 0, 0))  # текст меню
+            screen.blit(text_exit, (160, 340))
         else:
             if pygame.sprite.spritecollide(player, enemies, True):  # столкновение игрока с врагом
                 player.healths -= 1
@@ -298,6 +307,10 @@ while running:  # цикл игры
             screen.blit(text_enemy, (SCREEN_WIDTH - 780, SCREEN_HEIGHT - 40))
             screen.blit(text_hearts, (740, 15))
             # кадры и дисплей
+    else:
+        text_menu = timer.render('Нажмите на любую кнопку мыши, чтобы начать игру', True, (255, 255, 255))  # текст меню
+        screen.blit(text_menu, (90, 270))
+        pygame.mixer.music.stop()  # останавливаю музыку
     pygame.display.flip()
     clock.tick(90)  # кадры в секунду
 # за циклом
