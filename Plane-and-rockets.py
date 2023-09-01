@@ -231,10 +231,19 @@ while running:  # цикл игры
                 running = False
         if state == "menu":
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # is_game_over = False
                 pygame.mixer.music.play(loops=-1)
                 state = 'game'
-                # player = Player()
+                player = Player()
+                enemies = pygame.sprite.Group()
+                clouds = pygame.sprite.Group()
+                bullets = pygame.sprite.Group()
+                all_sprites = pygame.sprite.Group()
+                all_sprites.add(player)
+                is_game_over = False
+                time_score = 1
+                enemy_score = 0
+                Enemy.velocity = 1
+
         else:
             if is_game_over:
                 if event.type == KEYDOWN:
