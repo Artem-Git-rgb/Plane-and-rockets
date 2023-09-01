@@ -42,18 +42,25 @@ class Player(pygame.sprite.Sprite):  # класс игрока
             new_bullet = Bullet(self.rect.x + cord_x, self.rect.y + cord_y)  # (!!!)
             all_sprites.add(new_bullet)
             bullets.add(new_bullet)
+            move_up_sound.stop()
+            move_down_sound.stop()
+            if not is_col_sound_play:
+                is_lazer_sound_play = True
+                lazer.set_volume(0.01)  # громкость звука выстрела
+                lazer.play()
+                is_lazer_sound_play = False
 
     def update(self):  # движение
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_UP]:
             self.rect.move_ip(0, -5)
             self.vertical = 1
-            if not is_col_sound_play:
+            if not is_col_sound_play or not is_lazer_sound_play or not is_probitie_sound_play:
                 move_up_sound.play()
         if pressed_keys[K_DOWN]:
             self.rect.move_ip(0, 5)
             self.vertical = -1
-            if not is_col_sound_play:
+            if not is_col_sound_play or not is_lazer_sound_play or not is_probitie_sound_play:
                 move_down_sound.play()
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-5, 0)
@@ -94,7 +101,7 @@ class Player(pygame.sprite.Sprite):  # класс игрока
 class Bullet(pygame.sprite.Sprite):  # класс пули
     def __init__(self, x, y):
         super(Bullet, self).__init__()
-        self.image = pygame.image.load('big_bullet.png').convert()
+        self.image = pygame.image.load('bullet.png').convert()
         self.image.set_colorkey((255, 255, 255))
         self.image = pygame.transform.scale(self.image, (21, 7))  # (!!!)
         self.rect = self.image.get_rect()
@@ -190,14 +197,18 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 # музыка
 pygame.mixer.music.load('Apoxode_-_Electric.mp3')
-pygame.mixer.music.set_volume(0.05)
+pygame.mixer.music.set_volume(0.06)
 collision_sound = pygame.mixer.Sound('Collision.ogg')
 move_up_sound = pygame.mixer.Sound('Rising_putter.ogg')
 move_up_sound.set_volume(0.01)  # громкость звука вверх
 move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
 move_down_sound.set_volume(0.01)  # громкость звука вниз
-probitie = pygame.mixer.Sound('probitie-2.mp3')
-is_col_sound_play = False  # взорвана ли ракета
+probitie = pygame.mixer.Sound('probitie.mp3')
+lazer = pygame.mixer.Sound('laser_shot.mp3')
+# играют ли звуки взрывов и т.п.
+is_col_sound_play = False
+is_lazer_sound_play = False
+is_probitie_sound_play = False
 # анимация
 arr_images = {}  # цикл загрузки картинок взрыва
 arr_images['large'] = []
@@ -281,17 +292,18 @@ while running:  # цикл игры
             move_up_sound.stop()
             move_down_sound.stop()
             is_col_sound_play = True
-            collision_sound.set_volume(0.08)  # громкость звука взрыва
-            collision_sound.play()
+            if not is_probitie_sound_play:
+                collision_sound.set_volume(0.08)  # громкость звука взрыва
+                collision_sound.play()
             is_col_sound_play = False
             all_sprites.add(expl)
         if is_game_over:
             # счётчики после game over
-            draw_text('GAME OVER', timer, (255, 0, 0), SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 55)
+            draw_text('GAME OVER', timer_large, (255, 0, 0), SCREEN_WIDTH / 2 - 130, SCREEN_HEIGHT / 2 - 65)
             draw_text('время: ' + str(time_score // 90) + ' сек.', timer, (0, 0, 0), SCREEN_WIDTH - 485,
                       SCREEN_HEIGHT - 325)
-            draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 495, SCREEN_HEIGHT - 295)
-            draw_text('Нажмите на пробел, чтобы покинуть игру', timer, (0, 0, 0), 160, 340)  # текст для меню
+            draw_text('сбито врагов: ' + str(enemy_score), timer, (0, 0, 0), SCREEN_WIDTH - 500, SCREEN_HEIGHT - 295)
+            draw_text('Нажмите на пробел, чтобы покинуть игру', timer, (0, 0, 0), 150, 340)  # текст для меню
         else:
             if pygame.sprite.spritecollide(player, enemies, True):  # столкновение игрока с врагом
                 player.healths -= 1
@@ -326,7 +338,7 @@ while running:  # цикл игры
         draw_text('Plane and rockets', timer_large, (255, 255, 255), 235, 135)  # текст меню 1
         draw_text('Автор: Васильев Артём', timer, (255, 255, 255), 260, 180)  # текст меню 2
         # управление
-        draw_text('Перемещайтесь при помощи стрелочек на NumPad,', timer, (255, 255, 255), 95, 240)  # текст меню 3
+        draw_text('Перемещайтесь при помощи стрелочек,', timer, (255, 255, 255), 155, 240)  # текст меню 3
         draw_text('Не сталкивайтесь с ракетами, у вас всего 3 жизни, ', timer, (255, 255, 255), 105,
                   280)  # текст меню 4
         draw_text('Нажмите на пробел, чтобы выстрелить', timer, (255, 255, 255), 165,
