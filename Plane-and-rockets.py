@@ -30,7 +30,7 @@ class Player(pygame.sprite.Sprite):  # класс игрока
         self.standard_image.set_colorkey((255, 255, 255))
         self.vertical = 0
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_delay = 200
+        self.shoot_delay = 190
         self.healths = 3
 
     def attack(self):  # атака пулями
