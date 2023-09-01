@@ -213,6 +213,7 @@ heart.set_colorkey((255, 255, 255))
 heart = pygame.transform.scale(heart, (57, 38))
 # счётчик
 timer = pygame.font.Font(None, 36)
+timer_large = pygame.font.Font(None, 54)
 time_score = 1
 enemy_score = 0
 is_game_over = False
@@ -314,7 +315,18 @@ while running:  # цикл игры
             draw_text('x ' + str(player.healths), timer, (0, 0, 0), 740, 15)  # текст меню
             # кадры и дисплей
     else:
-        draw_text('Нажмите на любую кнопку мыши, чтобы начать игру', timer, (255, 255, 255), 90, 270)  # текст меню
+        # название и автор
+        draw_text('Plane and rockets', timer_large, (255, 255, 255), 235, 135)  # текст меню 1
+        draw_text('Автор: Васильев Артём', timer, (255, 255, 255), 260, 180)  # текст меню 2
+        # управление
+        draw_text('Перемещайтесь при помощи стрелочек на NumPad,', timer, (255, 255, 255), 95, 240)  # текст меню 3
+        draw_text('Не сталкивайтесь с ракетами, у вас всего 3 жизни, ', timer, (255, 255, 255), 105,
+                  280)  # текст меню 4
+        draw_text('Нажмите на пробел, чтобы выстрелить', timer, (255, 255, 255), 165,
+                  320)  # текст меню 5
+        draw_text('Зажмите его для автоатаки', timer, (255, 255, 255), 225,
+                  360)  # текст меню 6
+        draw_text('Нажмите на любую кнопку мыши, чтобы начать игру', timer, (255, 255, 255), 90, 400)  # текст меню 7
         pygame.mixer.music.stop()  # останавливаю музыку
     pygame.display.flip()
     clock.tick(90)  # кадры в секунду
