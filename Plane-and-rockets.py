@@ -42,29 +42,31 @@ class Player(pygame.sprite.Sprite):  # класс игрока
             new_bullet = Bullet(self.rect.x + cord_x, self.rect.y + cord_y)  # (!!!)
             all_sprites.add(new_bullet)
             bullets.add(new_bullet)
-            move_up_sound.stop()
-            move_down_sound.stop()
-            if not is_col_sound_play:
-                is_lazer_sound_play = True
-                lazer.set_volume(0.01)  # громкость звука выстрела
-                lazer.play()
-                is_lazer_sound_play = False
+            move_sound.stop()
+            move_sound.stop()
+            if state == 'game':
+                if not is_col_sound_play:
+                    is_lazer_sound_play = True
+                    lazer.set_volume(0.01)  # громкость звука выстрела
+                    lazer.play()
+                    is_lazer_sound_play = False
 
     def update(self):  # движение
+        flag_move = 1
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_UP]:
             self.rect.move_ip(0, -5)
             self.vertical = 1
             if not is_col_sound_play or not is_lazer_sound_play or not is_probitie_sound_play:
-                move_up_sound.play()
-        if pressed_keys[K_DOWN]:
+                move_sound.play()
+        elif pressed_keys[K_DOWN]:
             self.rect.move_ip(0, 5)
             self.vertical = -1
             if not is_col_sound_play or not is_lazer_sound_play or not is_probitie_sound_play:
-                move_down_sound.play()
+                move_sound.play()
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-5, 0)
-        if pressed_keys[K_RIGHT]:
+        elif pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
         if pressed_keys[K_SPACE]:
             self.attack()
@@ -125,14 +127,14 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect(
             center=(random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100), random.randint(0, SCREEN_HEIGHT)))
-        if Enemy.velocity > 3:
-            Enemy.velocity = 3
+        if Enemy.velocity > 2:
+            Enemy.velocity = 2
         self.speed = random.randint(3, 6) * Enemy.velocity  # (!!!)
 
     def update(self):  # исчезновение
         self.rect.move_ip(-self.speed, 0)
         if self.rect.right < 0:
-            Enemy.velocity += 0.03  # ускорение спавна врагов (!!!)
+            Enemy.velocity += 0.01  # ускорение спавна врагов (!!!)
             self.kill()
 
 
@@ -199,10 +201,8 @@ all_sprites.add(player)
 pygame.mixer.music.load('Apoxode_-_Electric.mp3')
 pygame.mixer.music.set_volume(0.06)
 collision_sound = pygame.mixer.Sound('Collision.ogg')
-move_up_sound = pygame.mixer.Sound('Rising_putter.ogg')
-move_up_sound.set_volume(0.01)  # громкость звука вверх
-move_down_sound = pygame.mixer.Sound('Falling_putter.ogg')
-move_down_sound.set_volume(0.01)  # громкость звука вниз
+move_sound = pygame.mixer.Sound('Rising_putter.ogg')
+move_sound.set_volume(0.01)  # громкость звука вверх и вниз
 probitie = pygame.mixer.Sound('probitie.mp3')
 lazer = pygame.mixer.Sound('laser_shot.mp3')
 # играют ли звуки взрывов и т.п.
@@ -252,6 +252,7 @@ while running:  # цикл игры
                 bullets = pygame.sprite.Group()
                 all_sprites = pygame.sprite.Group()
                 all_sprites.add(player)
+                player.rect.move_ip(0, 285)
                 is_game_over = False
                 time_score = 1
                 enemy_score = 0
@@ -277,8 +278,6 @@ while running:  # цикл игры
     screen.fill((20, 100, 200))
     if state == 'game':
         screen.blit(screen_image, (0, 0))
-        if player.healths > 0:
-            screen.blit(heart, (675, 10))
         # остальное
         for entity in all_sprites:
             screen.blit(entity.image, entity.rect)
@@ -289,8 +288,8 @@ while running:  # цикл игры
             enemies.add(e)
             enemy_score += 1
             expl = Explosion(hit.rect.center, 'small')  # взрыв
-            move_up_sound.stop()
-            move_down_sound.stop()
+            move_sound.stop()
+            move_sound.stop()
             is_col_sound_play = True
             if not is_probitie_sound_play:
                 collision_sound.set_volume(0.08)  # громкость звука взрыва
@@ -310,16 +309,16 @@ while running:  # цикл игры
                 if player.healths == 0:
                     is_game_over = True
                     player.kill()  # убиваем игрока
-                    move_down_sound.stop()
-                    move_up_sound.stop()
+                    move_sound.stop()
+                    move_sound.stop()
                     expl = Explosion(player.rect.center, 'large')  # взрыв
                     all_sprites.add(expl)
                     collision_sound.set_volume(0.7)  # громкость звука взрыва
                     collision_sound.play()
                 else:
                     expl = Explosion(player.rect.center, 'small')  # взрыв
-                    move_up_sound.stop()
-                    move_down_sound.stop()
+                    move_sound.stop()
+                    move_sound.stop()
                     is_col_sound_play = True
                     probitie.set_volume(0.1)  # громкость звука пробития
                     probitie.play()
@@ -332,6 +331,8 @@ while running:  # цикл игры
             draw_text('сбито врагов: ' + str(enemy_score), timer, (255, 255, 255), SCREEN_WIDTH - 780,
                       SCREEN_HEIGHT - 40)  # текст
             draw_text('x ' + str(player.healths), timer, (0, 0, 0), 740, 15)  # текст меню
+            if player.healths > 0:
+                screen.blit(heart, (675, 10))
             # кадры и дисплей
     else:
         # название и автор
@@ -345,7 +346,7 @@ while running:  # цикл игры
                   320)  # текст меню 5
         draw_text('Зажмите его для автоатаки', timer, (255, 255, 255), 225,
                   360)  # текст меню 6
-        draw_text('Нажмите на любую кнопку мыши, чтобы начать игру', timer, (255, 255, 255), 90, 400)  # текст меню 7
+        draw_text('Нажмите на любую кнопку мыши, чтобы начать игру', timer, (255, 255, 255), 90, 410)  # текст меню 7
         pygame.mixer.music.stop()  # останавливаю музыку
     pygame.display.flip()
     clock.tick(90)  # кадры в секунду
