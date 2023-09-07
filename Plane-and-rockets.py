@@ -321,7 +321,7 @@ while running:  # цикл игры
                     move_up_sound.stop()
                     move_down_sound.stop()
                     is_col_sound_play = True
-                    probitie.set_volume(0.06)  # громкость звука пробития
+                    probitie.set_volume(0.1)  # громкость звука пробития
                     probitie.play()
                     is_col_sound_play = False
                     all_sprites.add(expl)
