@@ -134,7 +134,7 @@ class Enemy(pygame.sprite.Sprite):  # класс врага
     def update(self):  # исчезновение
         self.rect.move_ip(-self.speed, 0)
         if self.rect.right < 0:
-            Enemy.velocity += 0.01  # ускорение спавна врагов (!!!)
+            Enemy.velocity += 0.02  # ускорение спавна врагов (!!!)
             self.kill()
 
 
