@@ -109,7 +109,7 @@ class Bullet(pygame.sprite.Sprite):  # класс пули
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 5  # скорость пули
+        self.speed = 6  # скорость пули
 
     def update(self):  # исчезновение
         self.rect.x += self.speed
@@ -186,7 +186,7 @@ SCREEN_WIDTH = 800  # ширина
 SCREEN_HEIGHT = 600  # высота
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 ADD_ENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADD_ENEMY, 600)  # таймер для спавна врага (!!!)
+pygame.time.set_timer(ADD_ENEMY, 500)  # таймер для спавна врага (!!!)
 ADD_CLOUD = pygame.USEREVENT + 2
 pygame.time.set_timer(ADD_CLOUD, 1500)  # таймер для спавна облака (!)
 ADD_BULLET = pygame.USEREVENT + 2
